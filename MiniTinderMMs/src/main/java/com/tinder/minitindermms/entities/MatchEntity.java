@@ -30,4 +30,7 @@ public class MatchEntity {
         this.pending = pending;
     }
 
+    public MatchEntity() {
+    }
+
 }

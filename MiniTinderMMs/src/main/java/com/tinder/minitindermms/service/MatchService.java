@@ -2,10 +2,16 @@ package com.tinder.minitindermms.service;
 
 import com.tinder.minitindermms.entities.MatchEntity;
 import com.tinder.minitindermms.repositories.MatchRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
+import javax.swing.text.html.parser.Entity;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class MatchService {
@@ -14,21 +20,53 @@ public class MatchService {
     private MatchRepository matchRepository;
 
     public List<Long> getConfirmedMatches(Long userId) {
-        List<Long> matches = matchRepository.findUserId1ByUserId2AndPending(userId, false);
-        matches.addAll(matchRepository.findUserId2ByUserId1AndPending(userId, false));
+        List<Long> matches = matchRepository.findByUserId2AndPending(userId, false)
+                .stream()
+                .map(MatchEntity::getUserId1)
+                .collect(Collectors.toList());
+        matches.addAll(matchRepository.findByUserId1AndPending(userId, false)
+                .stream()
+                .map(MatchEntity::getUserId2)
+                .toList());
 
         return matches;
     }
 
     public List<Long> getPendingSentMatches(Long userId) {
-        return matchRepository.findUserId2ByUserId1AndPending(userId, true);
+        return matchRepository.findByUserId1AndPending(userId, true)
+                .stream()
+                .map(MatchEntity::getUserId2)
+                .collect(Collectors.toList());
     }
 
     public List<Long> getPendingReceivedMatches(Long userId) {
-        return matchRepository.findUserId1ByUserId2AndPending(userId, true);
+        return matchRepository.findByUserId2AndPending(userId, true)
+                .stream()
+                .map(MatchEntity::getUserId1)
+                .collect(Collectors.toList());
     }
 
-    public MatchEntity createMatch(Long userId, Long otherUserId) {
-        return matchRepository.save(new MatchEntity(userId, otherUserId, true));
+    @Transactional
+    public ResponseEntity<String> createMatch(Long userId, Long otherUserId) {
+        if(userId.equals(otherUserId))
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Can't match a user with himself!");
+        List<Long> matches = matchRepository.findByUserId2AndPending(userId, true)
+                .stream()
+                .map(MatchEntity::getUserId1)
+                .collect(Collectors.toList());
+        if(matches.contains(otherUserId)) {
+            matchRepository.deleteByUserId1AndUserId2(otherUserId, userId);
+            matchRepository.save(new MatchEntity(otherUserId, userId, false));
+            return ResponseEntity.status(HttpStatus.OK).body("Match accepted");
+        }
+        matches = matchRepository.findByUserId1AndPending(userId, true)
+                .stream()
+                .map(MatchEntity::getUserId2)
+                .collect(Collectors.toList());
+        if(matches.contains(otherUserId)) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Match already exists");
+        }
+        matchRepository.save(new MatchEntity(userId, otherUserId, true));
+        return ResponseEntity.status(HttpStatus.OK).body("Match requested");
     }
 }
