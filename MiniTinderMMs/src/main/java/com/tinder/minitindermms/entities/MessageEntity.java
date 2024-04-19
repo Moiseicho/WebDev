@@ -1,26 +1,33 @@
 package com.tinder.minitindermms.entities;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import java.time.LocalDateTime;
+import java.util.UUID;
+
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.lang.Nullable;
+import org.springframework.data.cassandra.core.mapping.PrimaryKey;
+import org.springframework.data.cassandra.core.mapping.Table;
 
-import java.time.LocalDateTime;
-
-@Entity
+@Table
 @Getter
 @Setter
+@Data
 public class MessageEntity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @PrimaryKey
+    private UUID messageId;
     private Long senderId;
     private Long recipientId;
     private String content;
-    @Nullable
     private LocalDateTime sentAt;
+
+    public MessageEntity(Long senderId, Long recipientId, String content)
+    {
+        messageId = UUID.randomUUID();
+        this.senderId = senderId;
+        this.recipientId = recipientId;
+        this.content = content;
+        sentAt = LocalDateTime.now();
+    }
 
 }

@@ -1,5 +1,6 @@
 package com.tinder.minitindermms.service;
 
+import com.tinder.minitindermms.DTO.MessageDTO;
 import com.tinder.minitindermms.entities.MatchEntity;
 import com.tinder.minitindermms.entities.MessageEntity;
 import com.tinder.minitindermms.repositories.MessageRepository;
@@ -20,7 +21,8 @@ public class MessageService {
     @Autowired
     private MatchService matchService;
 
-    public ResponseEntity<String> sendMessage(MessageEntity messageEntity) {
+    public ResponseEntity<String> sendMessage(MessageDTO messageDTO) {
+        MessageEntity messageEntity = new MessageEntity(messageDTO.getSenderId(), messageDTO.getRecipientId(), messageDTO.getContent());
         if(!matchService.getConfirmedMatches(messageEntity.getSenderId()).contains(messageEntity.getRecipientId()))
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Can't message unmatched users!");
         if(messageEntity.getSenderId() == null || messageEntity.getRecipientId() == null || messageEntity.getContent() == null || messageEntity.getContent().isEmpty()) {

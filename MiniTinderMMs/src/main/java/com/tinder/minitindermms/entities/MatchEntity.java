@@ -1,36 +1,35 @@
 package com.tinder.minitindermms.entities;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
+import com.datastax.oss.driver.api.core.uuid.Uuids;
+import lombok.*;
+import org.springframework.data.cassandra.core.mapping.PrimaryKey;
+import org.springframework.data.cassandra.core.mapping.Table;
+import org.springframework.lang.Nullable;
 
-import javax.management.ConstructorParameters;
+import java.time.LocalDateTime;
+import java.util.UUID;
 
-@Entity
+@Table
 @Getter
 @Setter
-@AllArgsConstructor
+@Data
 public class MatchEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
+    @PrimaryKey
+    private UUID matchId;
     private Long userId1;
     private Long userId2;
     private boolean pending;
+    @Nullable
+    private LocalDateTime matchedAt;
 
-    public MatchEntity(Long userId1, Long userId2, boolean pending) {
+    public MatchEntity(Long userId1, Long userId2, boolean pending)
+    {
+        matchId = Uuids.timeBased();
         this.userId1 = userId1;
         this.userId2 = userId2;
         this.pending = pending;
+        matchedAt = LocalDateTime.now();
     }
-
-    public MatchEntity() {
-    }
-
 }
+

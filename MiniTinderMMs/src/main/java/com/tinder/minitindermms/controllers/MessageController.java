@@ -1,5 +1,6 @@
 package com.tinder.minitindermms.controllers;
 
+import com.tinder.minitindermms.DTO.MessageDTO;
 import com.tinder.minitindermms.entities.MessageEntity;
 import com.tinder.minitindermms.service.MessageService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,8 +17,8 @@ public class MessageController {
     private MessageService messageService;
 
     @PostMapping("")
-    public ResponseEntity<String> sendMessage(@RequestBody MessageEntity messageEntity) {
-        return messageService.sendMessage(messageEntity);
+    public ResponseEntity<String> sendMessage(@RequestBody MessageDTO messageDTO) {
+        return messageService.sendMessage(messageDTO);
     }
 
     @GetMapping("/{recipientId}")

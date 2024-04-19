@@ -2,15 +2,12 @@ package com.tinder.minitindermms.service;
 
 import com.tinder.minitindermms.entities.MatchEntity;
 import com.tinder.minitindermms.repositories.MatchRepository;
-import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
-
-import javax.swing.text.html.parser.Entity;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -46,7 +43,6 @@ public class MatchService {
                 .collect(Collectors.toList());
     }
 
-    @Transactional
     public ResponseEntity<String> createMatch(Long userId, Long otherUserId) {
         if(userId.equals(otherUserId))
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Can't match a user with himself!");
@@ -55,7 +51,8 @@ public class MatchService {
                 .map(MatchEntity::getUserId1)
                 .collect(Collectors.toList());
         if(matches.contains(otherUserId)) {
-            matchRepository.deleteByUserId1AndUserId2(otherUserId, userId);
+            UUID matchId = matchRepository.findByUserId1AndPending(otherUserId, true).get(0).getMatchId();
+            matchRepository.deleteByMatchId(matchId);
             matchRepository.save(new MatchEntity(otherUserId, userId, false));
             return ResponseEntity.status(HttpStatus.OK).body("Match accepted");
         }

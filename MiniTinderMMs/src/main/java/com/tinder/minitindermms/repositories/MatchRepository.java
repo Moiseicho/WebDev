@@ -1,12 +1,25 @@
 package com.tinder.minitindermms.repositories;
 
 import com.tinder.minitindermms.entities.MatchEntity;
-import com.tinder.minitindermms.entities.MessageEntity;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
+import org.springframework.data.cassandra.repository.AllowFiltering;
+import org.springframework.data.cassandra.repository.CassandraRepository;
+import org.springframework.data.cassandra.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.UUID;
 
+public interface MatchRepository extends CassandraRepository<MatchEntity, Long> {
+    @AllowFiltering
+    List<MatchEntity> findByUserId2AndPending(@Param("userId2") Long userId2, @Param("pending") boolean pending);
+    @AllowFiltering
+    List<MatchEntity> findByUserId1AndPending(@Param("userId1") Long userId1, @Param("pending") boolean pending);
+    @AllowFiltering
+    @Query("DELETE FROM matchentity WHERE matchId = :matchId")
+    void deleteByMatchId(@Param("matchId") UUID matchId);
+}
+
+/*
 @Repository
 public interface MatchRepository extends JpaRepository<MatchEntity, Long> {
 
@@ -15,3 +28,4 @@ public interface MatchRepository extends JpaRepository<MatchEntity, Long> {
     void deleteByUserId1AndUserId2(Long userId1, Long userId2);
 
 }
+*/
