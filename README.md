@@ -60,12 +60,43 @@ WITH replication = {'class': 'SimpleStrategy', 'replication_factor': 1};```
       sentat TIMESTAMP
   );
   ```
+4. **Creating the minitinderMMs container**
 
-4. **Verify Setup**
+Open the minitindermms project and enter these commands in the terminal
 
-You can verify that the Cassandra container is running and the tables are created by connecting to the Cassandra instance and querying the tables.
+```docker build minitindermms .```
 
-## Additional Notes
+This will build the image
 
-- Ensure that the port 9042 is not blocked by any firewall or security group rules.
-- Replace the placeholders in the commands and queries with actual values as required.
+``` docker run -p 8080:8080 --name minitindermms_container minitindermms```
+
+This will create a container named minitidenrmms_container based on the minitindermms image and run it.
+
+5. **Creating the Mysql container for the notification service.**
+
+Pull the latest mysql container image and run it.
+
+```docker pull mysql:latest```
+```docker run -d --name my_mysql_container -p 3306:3306 -e MYSQL_ROOT_PASSWORD=root mysql:latest -e MYSQL_DATABASE=MiniTinderNotifications```
+
+This will run a docker container on port 3306 and will initialise the database by itself.
+
+6. **Setup a network for this database**
+
+To have the minitinder notification service communicate with the mysql container we need to establish a network.
+To do that we enter the following commands:
+
+```docker network create minitinderns-network```
+```docker network connect minitinderns-network my_mysql_container```
+
+This will create the network named minitiderns-network and connect the my_mysql_container to it.
+
+7. **Creating the minitinderNs container**
+
+Open the minitinderNs project and type in the following commands
+
+```docker build minitinderns .```
+```docker run -p 8081:8081 --name minitinderns_container --network minitinderns-network -e MYSQL_HOST=my_mysql_container -e MYSQL_PORT=3306 minitinderns```
+This will run the image with the enviroment variables set for the mysql container and connected to the minitinderns-network
+
+ 
