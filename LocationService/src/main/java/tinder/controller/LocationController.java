@@ -13,7 +13,7 @@ import tinder.entities.Location;
 import tinder.service.LocationService;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/location")
 public class LocationController {
 
     @Autowired
