@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: minitinder-mms
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: minitinder-mms
+  template:
+    metadata:
+      labels:
+        app: minitinder-mms
+    spec:
+      containers:
+      - name: minitinder-mms
+        image: gcr.io/meta-gear-421306/minitindermms:v1
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8080
+        env:
+        - name: CASSANDRA_CONTACT_POINTS
+          value: 34.118.237.119

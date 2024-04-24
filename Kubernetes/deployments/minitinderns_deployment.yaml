@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: minitinder-ns
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: minitinder-ns
+  template:
+    metadata:
+      labels:
+        app: minitinder-ns
+    spec:
+      containers:
+      - name: minitinder-ns
+        image: gcr.io/meta-gear-421306/minitinderns:v1
+        ports:
+        - containerPort: 8081
+        env:
+        - name: MYSQL_HOST
+          value: 34.118.234.211
+        - name: MYSQL_PORT
+          value: "3306"
