@@ -25,7 +25,13 @@ Replace `/path/to/local/directory` with the path to the directory on your host m
 
 3. **Create Keystore and Tables**
 
+Enter this command to get acces to the cassandra terminal
+
+```docker exec -it my-cassandra-container cqlsh```
+
 Once the Cassandra container is running, use your preferred tool (e.g., cqlsh or a Cassandra driver) to connect to the Cassandra instance and execute CQL queries to create a keystrore and tables. Below are the CQL queries:
+
+
 
 - **Create Keystore**
 ```CREATE KEYSPACE IF NOT EXISTS minitindermms
